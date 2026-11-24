@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desain Banyu</title>
+<style>
+  @font-face { font-family: 'Pixelify Sans'; src: url(../assets/fonts/pixelify-sans-latin-400-normal.woff2) format('woff2'); font-weight: 400; }
+  @font-face { font-family: 'Pixelify Sans'; src: url(../assets/fonts/pixelify-sans-latin-700-normal.woff2) format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'Jersey 10'; src: url(../assets/fonts/jersey-10-latin-400-normal.woff2) format('woff2'); }
+  :root { --bg: #15121c; --card: #221d2c; --ink: #f1e7d3; --muted: #b3a690; --line: #3a3248; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 22px/1.45 'Pixelify Sans', system-ui, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 16px; }
+  h1 { font: 72px/1 'Jersey 10', sans-serif; margin: 0; letter-spacing: 2px; color: #ffc879; }
+  .lead { color: var(--muted); margin: 8px 0 28px; }
+  .card { background: var(--card); border: 3px solid var(--line); border-radius: 6px; padding: 28px; margin: 0 0 28px; }
+  .tag { font: 30px/1 'Jersey 10', sans-serif; color: var(--muted); letter-spacing: 2px; }
+  .card h2 { font: 64px/1 'Jersey 10', sans-serif; margin: 2px 0 18px; letter-spacing: 1px; }
+  .stage { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+           background: linear-gradient(#2e2840, #1a1624); border-radius: 4px; padding: 20px; }
+  .stage figure { margin: 0; text-align: center; }
+  .stage figcaption { font-size: 17px; color: var(--muted); margin-top: 8px; }
+  .stage canvas { display: block; image-rendering: pixelated; }
+  ul { margin: 18px 0 0; padding-left: 26px; }
+  li { margin: 4px 0; }
+  li b { color: #ffe2b0; font-weight: 700; }
+  .pal { display: flex; gap: 6px; margin-top: 16px; }
+  .pal span { width: 36px; height: 36px; border: 2px solid #0006; border-radius: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>BANYU</h1>
+  <p class="lead">Tokoh utama <i>Sumpah Bara</i>. Bocah nelayan 14 tahun dari Desa Kalisari. Tiga konsep desain, pilih salah satu.</p>
+  <div id="cards"></div>
+</main>
+<script type="module">
+import * as D from './banyu-desain.js';
+
+const konsep = [
+  {
+    k: 'A', nama: 'Anak Pantai', warna: '#7f9cff',
+    pal: ['#2f428a', '#4f6cc0', '#e8d8b0', '#b83a2a', '#f6ecd8', '#d0966a', '#2a2840'],
+    poin: [
+      ['Kesan', 'polos, ceria, gampang disukai. Benar-benar "bocah kampung biasa", jadi perubahan dirinya nanti paling terasa.'],
+      ['Pakaian', 'rompi nila terbuka, celana batik motif parang, sabuk kain merah, dan kalung kerang buatan ibunya.'],
+      ['Bawaan', 'joran bambu untuk memancing.'],
+      ['Warna utama', 'biru nila, sejalan dengan unsur Tirta (air).'],
+    ],
+  },
+  {
+    k: 'B', nama: 'Pewaris Pusaka', warna: '#5fd0c8',
+    pal: ['#1f7f82', '#46b6b2', '#dccba4', '#5a4030', '#f2d46a', '#d0966a', '#1e2232'],
+    poin: [
+      ['Kesan', 'serius dan pemberani. Langsung terasa "pahlawan".'],
+      ['Pakaian', 'iket batik biru-hijau, baju kutung krem, selendang melintang, dan kelat bahu emas.'],
+      ['Bawaan', 'Keris Tirta Wening di pinggang. Hulunya berpendar biru, dan matanya ikut memantulkan cahaya biru.'],
+      ['Catatan', 'paling epik, tapi kesan bocah desanya agak hilang.'],
+    ],
+  },
+  {
+    k: 'C', nama: 'Nelayan Lincah', warna: '#ff9a4a',
+    pal: ['#2e3858', '#c25a1e', '#f08a3a', '#c99a4a', '#94502c', '#d0966a', '#7a5636'],
+    poin: [
+      ['Kesan', 'jahil, cerdik, banyak akal. Paling gampang dikenali dari jauh berkat caping dan rambutnya.'],
+      ['Pakaian', 'kemeja lusuh biru tua, kain kotak-kotak oranye yang diselempangkan, dan plester di pipi.'],
+      ['Bawaan', 'serampang (tombak ikan bermata tiga) sebagai senjata awal sebelum dapat keris, plus caping di punggung.'],
+      ['Ciri khas', 'rambut merah kecokelatan karena sering kena matahari dan air laut.'],
+    ],
+  },
+];
+
+const wrap = document.getElementById('cards');
+for (const c of konsep) {
+  const card = document.createElement('section');
+  card.className = 'card';
+  card.id = `konsep-${c.k}`;
+  card.innerHTML = `<div class="tag">KONSEP ${c.k}</div><h2 style="color:${c.warna}">${c.nama.toUpperCase()}</h2>
+    <div class="stage"></div>
+    <ul>${c.poin.map(([a, b]) => `<li><b>${a}:</b> ${b}</li>`).join('')}</ul>
+    <div class="pal">${c.pal.map((p) => `<span style="background:${p}"></span>`).join('')}</div>`;
+  const stage = card.querySelector('.stage');
+  const fig = (canvas, cap) => {
+    const f = document.createElement('figure');
+    f.appendChild(canvas);
+    const fc = document.createElement('figcaption');
+    fc.textContent = cap;
+    f.appendChild(fc);
+    stage.appendChild(f);
+  };
+  fig(D[`portrait${c.k}`]().toCanvas(6), 'Potret (kotak dialog)');
+  fig(D[`full${c.k}`]().toCanvas(5), 'Badan penuh');
+  fig(D[`chibi${c.k}`]().toCanvas(6), 'Sprite di dalam game');
+  wrap.appendChild(card);
+}
+await document.fonts.ready;
+window.done = true;
+</script>
+</body>
+</html>
